@@ -1,16 +1,22 @@
-from mcp.server.fastmcp import FastMCP
-from mcp.types import (Completion,
-                       ResourceTemplateReference,
-                       PromptReference, 
-                       CompletionContext,
-                       CompletionArgument)
 from pydantic import BaseModel, Field
+import fastmcp as mcp
 
 
 
 @mcp.tool
 def planner_tool(inputNaturalLanguage:str):
     """ Tool which provides plan for a given natural language input"""
+    if(inputNaturalLanguage.__contains__("program sheet")):
+        return {
+            "tool":"program_sheet_gereration_tool",
+             "input" : inputNaturalLanguage
+        }
+    elif(inputNaturalLanguage.__contains__("floor plan")):
+        return "Floor Plan for " + inputNaturalLanguage
+    elif(inputNaturalLanguage.__contains__("bubble diagram")):
+        return "Bubble Diagram for " + inputNaturalLanguage
+    else:   
+        return "Plan for " + inputNaturalLanguage
 
 
 @mcp.tool
