@@ -1,8 +1,5 @@
-from pydantic import BaseModel, Field
-import fastmcp as mcp
-
-
-
+from fastmcp import FastMCP
+# from mcpServer import RoutePlanningMCPServer as mcp
 @mcp.tool
 def planner_tool(inputNaturalLanguage:str):
     """ Tool which provides plan for a given natural language input"""

@@ -1,18 +1,17 @@
-[project]
+[tool.poetry]
 name = "mcp-mocks"
 version = "0.1.0"
 description = ""
-authors = [
-    {name = "lord-fourth0107",email = "shivamsinghnitr123@gmail.com"}
-]
-readme = "README.md"
-requires-python = ">=3.12,<4.0"
-dependencies = [
-    "fastapi (>=0.116.0,<0.117.0)",
-    "fastmcp (>=2.10.4,<3.0.0)"
-]
+authors = ["Your Name <you@example.com>"]
+packages = [{ include = "mcp_mocks" }]
 
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.110"
+uvicorn = "^0.29"
+requests = "^2.32"
+fastmcp = { git = "https://github.com/jlowin/fastmcp.git" }
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
