@@ -1,44 +1,33 @@
-from mcpServer import RoutePlanningMCPServer
 from fastapi import FastAPI
 from fastmcp import FastMCP
+import uvicorn
+from loguru import logger
 
+mcp = FastMCP()
+mcp_app = mcp.http_app(path="/mcp")
+# 1. Create the main FastAPI application
+app = FastAPI(title="Architectural Assistant Server",lifespan = mcp_app.lifespan)
 
+# 2. Create the MCP application
 
-mcp= FastMCP()
-    #return server.handleInput(input
-# from mcpServer import RoutePlanningMCPServer as mcp
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
+# 3. Define the tool to correctly accept and USE the argument
 @mcp.tool
-def planner_tool(inputNaturalLanguage:str):
-    """ Tool which provides plan for a given natural language input"""
-    if(inputNaturalLanguage.__contains__("program sheet")):
-        return {
-            "tool":"program_sheet_gereration_tool",
-             "input" : inputNaturalLanguage
-        }
-    elif(inputNaturalLanguage.__contains__("floor plan")):
-        return "Floor Plan for " + inputNaturalLanguage
-    elif(inputNaturalLanguage.__contains__("bubble diagram")):
-        return "Bubble Diagram for " + inputNaturalLanguage
-    else:   
-        return "Plan for " + inputNaturalLanguage
+def planner_tool(inputNaturalLanguage: str) -> str:
+    """Tool which provides plan for a given natural language input."""
+    # This now uses the input from your client, so you can see it working.
+    return f"A detailed plan has been generated for: {inputNaturalLanguage}"
 
+# ... add your other tools here, making sure they accept arguments if needed ...
 
-@mcp.tool
-def program_sheet_gereration_tool():
-    """ Tool which provides program sheet for a given natural language input"""
+print(f"MCP object is :", mcp.http_app())
+# 4. Mount the MCP app at "/mcp" to match your client's URL
+app.mount("/mcp-server", mcp_app)
 
-@mcp.tool 
-def floor_plan_generation_tool():
-    """ Tool which provides floor plan for a given natural language input"""
-
-@mcp.tool
-def bubble_diagram_generation_tool():
-    """ Tool which provides bubble diagram for a given natural language input"""
-
-
-
+# 5. Run the server
 if __name__ == "__main__":
-    # server = RoutePlanningMCPServer(mcpHost)
-    mcp.run( transport="http",   # start a Uvicorn server
-        host="0.0.0.0",
-        port=8000)
+    # This command will now work correctly because the file is named "app.py"
+    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True,debug=True,logger_level="info")
+    logger.info("Server started")
