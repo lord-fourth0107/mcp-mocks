@@ -1,3 +1,3 @@
-from mcpServer import RoutePlanningMCPServer
+from mcpServer import mcp
 
-__all__ = ["RoutePlanningMCPServer"]
+__all__ = ["mcp"]
