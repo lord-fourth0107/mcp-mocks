@@ -9,3 +9,6 @@ def planner_prompt(inputNaturalLanguage: str) -> str:
     "Using the user's input as stated in : {inputNaturalLanguage}, can you come up with a plan of tools or sequence of tools to complete the task?"  \
     
     return PromptMessage(role = "user", content = TextContent(type="text",content = content))
+
+# @mcp.prompt
+# def coordinator_prompt()
