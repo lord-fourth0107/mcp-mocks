@@ -12,6 +12,7 @@ uvicorn = "^0.29"
 requests = "^2.32"
 fastmcp = { git = "https://github.com/jlowin/fastmcp.git" }
 loguru = "^0.7.3"
+ollama = "^0.5.1"
 
 [build-system]
 requires = ["poetry-core"]

@@ -1,5 +1,6 @@
-import ollama, Client
+import ollama
 import os
+from ollama import Client
 
 
 
@@ -7,17 +8,18 @@ import os
 class LLMClient:
 
     def __init__(self):
-        self.remotellmClient = ollama.Client(os.getenv("LLM_API_URL"))
+        self.remote_llm_client = ollama.Client(os.getenv("LLM_API_URL"))
     def chat_with_LLM(self,prompt : str, toolList : list[str] = []) -> str:
+        print(prompt)
         response = self.remote_llm_client.chat(
-            [
+            model = "llama-3b",
+            messages = [
                 {
                     "role": "user",
                     "content":prompt,
-                    "format":'json'
-
                 }
-            ]
+            ],
+             format ="json"
         )
         return response
 

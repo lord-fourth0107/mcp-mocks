@@ -3,7 +3,7 @@ from fastmcp import Client
 
 async def main():
     # Connect to the running server
-    async with Client("http://127.0.0.1:8000/mcp-server/mcp") as client:
+    async with Client("http://127.0.0.1:8000") as client:
         # Call the 'add' tool and print the result
         tools = await client.list_tools()
         print(f"Available tools: {tools}")
