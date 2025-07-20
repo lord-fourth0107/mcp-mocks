@@ -13,7 +13,7 @@ class LLMClient:
     def chat_with_LLM(self,prompt : str, toolList : list[str] = []) -> str:
         print(prompt)
         response = self.remote_llm_client.chat(
-            model = "llama-3b",
+            model = "llama3:latest",
             messages = [
                 {
                     "role": "user",

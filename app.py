@@ -39,9 +39,7 @@ async def coordinator_agent(inputNaturalLanguage: str):
         print(f"Prompt is:",prompt[0].content.text)
         response = remote_llm_host.chat_with_LLM(prompt[0].content.text)
         tool_call = json.loads(response['message']['content'])
-        tool_names = tool_call['tool_names']
-        tool_args = tool_call['tool_args']
-        return tool_names, tool_args
+        return response
     except Exception as e:
         print(e)
 @app.get("/")
