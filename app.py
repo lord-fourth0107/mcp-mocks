@@ -8,6 +8,8 @@ from llmApi.llmapi import LLMClient
 import json
 from pydantic import BaseModel
 from dotenv import load_dotenv
+import serverSetup.mcpTool as mcpTool
+import serverSetup.mcpPrompts as mcpPrompts
 load_dotenv()
 mcp_app = mcp.http_app(path="/mcp")
 # 1. Create the main FastAPI application
@@ -15,23 +17,39 @@ app = FastAPI(title="Architectural Assistant Server",lifespan = mcp_app.lifespan
 class InputData(BaseModel):
     natural_language_input : str
 remote_llm_host = LLMClient()
-print(remote_llm_host)
-async def coordinator_agent(inputNaturalLanguage: str):
-    prompt_func = await mcp.get_prompt("planner_prompt")
-    prompt = await prompt_func(inputNaturalLanguage)
 
-    print(f"Prompt is:",prompt.content.content)
-    response = remote_llm_host.chat_with_LLM(prompt.content.content)
-    tool_call = json.loads(response['message']['content'])
-    tool_names = tool_call['tool_names']
-    tool_args = tool_call['tool_args']
-    print(tool_names)
-    return tool_names, tool_args
+async def get_tools(toolList):
+    tool_schemas =[]
+    for tool in toolList:
+        tool_object = await mcp.get_tool(tool)
+        print(tool_object)
+        tool_schemas.append(tool_object.schema())
+    tools_schema  = json.dumps(tool_schemas)
+    return tools_schema
+async def coordinator_agent(inputNaturalLanguage: str):
+    try:
+        prompt_func = await mcp.get_prompt("planner_prompt")
+        available_tools = await mcp.get_tools()
+        tool_schema = await get_tools(available_tools)
+        print(tool_schema)
+
+        prompt = await prompt_func.render({"userInput" :inputNaturalLanguage})
+
+
+        print(f"Prompt is:",prompt.content.content)
+        response = remote_llm_host.chat_with_LLM(prompt.content.content)
+        tool_call = json.loads(response['message']['content'])
+        tool_names = tool_call['tool_names']
+        tool_args = tool_call['tool_args']
+        print(tool_names)
+        return tool_names, tool_args
+    except Exception as e:
+        print(e)
 @app.get("/")
 async def root(data : InputData):
     natural_language_input = data.natural_language_input
     
-    response = coordinator_agent(natural_language_input) 
+    response = await coordinator_agent(natural_language_input) 
     print(response)
 
 print(f"MCP object is :", mcp.http_app())
