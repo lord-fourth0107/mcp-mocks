@@ -22,8 +22,12 @@ async def get_tools(toolList):
     tool_schemas =[]
     for tool in toolList:
         tool_object = await mcp.get_tool(tool)
-        print(tool_object)
-        tool_schemas.append(tool_object.schema())
+        clean_schema = {
+            "name": tool_object.name,
+            "description": tool_object.description,
+            "parameters": tool_object.parameters,
+        }
+        tool_schemas.append(clean_schema)
     tools_schema  = json.dumps(tool_schemas)
     return tools_schema
 async def coordinator_agent(inputNaturalLanguage: str):
@@ -31,17 +35,12 @@ async def coordinator_agent(inputNaturalLanguage: str):
         prompt_func = await mcp.get_prompt("planner_prompt")
         available_tools = await mcp.get_tools()
         tool_schema = await get_tools(available_tools)
-        print(tool_schema)
-
-        prompt = await prompt_func.render({"userInput" :inputNaturalLanguage})
-
-
-        print(f"Prompt is:",prompt.content.content)
-        response = remote_llm_host.chat_with_LLM(prompt.content.content)
+        prompt = await prompt_func.render({"userInput" :inputNaturalLanguage , "tools_schema" : tool_schema})
+        print(f"Prompt is:",prompt[0].content.text)
+        response = remote_llm_host.chat_with_LLM(prompt[0].content.text)
         tool_call = json.loads(response['message']['content'])
         tool_names = tool_call['tool_names']
         tool_args = tool_call['tool_args']
-        print(tool_names)
         return tool_names, tool_args
     except Exception as e:
         print(e)
