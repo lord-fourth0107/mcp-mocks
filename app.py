@@ -7,12 +7,15 @@ import serverSetup.mcpTool as mcpTool
 from llmApi.llmapi import LLMClient
 import json
 from pydantic import BaseModel
+from dotenv import load_dotenv
+load_dotenv()
 mcp_app = mcp.http_app(path="/mcp")
 # 1. Create the main FastAPI application
 app = FastAPI(title="Architectural Assistant Server",lifespan = mcp_app.lifespan)
 class InputData(BaseModel):
     natural_language_input : str
 remote_llm_host = LLMClient()
+print(remote_llm_host)
 async def coordinator_agent(inputNaturalLanguage: str):
     prompt_func = await mcp.get_prompt("planner_prompt")
     prompt = await prompt_func(inputNaturalLanguage)
