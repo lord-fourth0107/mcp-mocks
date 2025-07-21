@@ -10,12 +10,11 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 import serverSetup.mcpTool as mcpTool
 import serverSetup.mcpPrompts as mcpPrompts
+from dataModels.apiInputs import UserInput
 load_dotenv()
 mcp_app = mcp.http_app(path="/mcp")
 # 1. Create the main FastAPI application
 app = FastAPI(title="Architectural Assistant Server",lifespan = mcp_app.lifespan)
-class InputData(BaseModel):
-    natural_language_input : str
 remote_llm_host = LLMClient()
 
 async def get_tools(toolList):
@@ -43,18 +42,18 @@ async def coordinator_agent(inputNaturalLanguage: str):
     except Exception as e:
         print(e)
 @app.get("/")
-async def root(data : InputData):
-    natural_language_input = data.natural_language_input
-    
-    response = await coordinator_agent(natural_language_input) 
+async def root(request : UserInput):
+    userInput = UserInput( userId = request.userId,
+                          userInput = request.userInput, 
+                          projectId = request.projectId, 
+                          requestId = request.requestId, 
+                          studyId = request.studyId
+                          )
+    response = await coordinator_agent(userInput.userInput) 
     print(response)
 
-print(f"MCP object is :", mcp.http_app())
-# 4. Mount the MCP app at "/mcp" to match your client's URL
 app.mount("/mcp-server", mcp_app)
 
-# 5. Run the server
 if __name__ == "__main__":
-    # This command will now work correctly because the file is named "app.py"
     uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
     logger.info("Server started")

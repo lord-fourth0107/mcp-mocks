@@ -1,7 +1,8 @@
 from pydantic import BaseModel, Field, UUID4, HttpUrl, model_validator
+from pydantic_csv import BasemodelCSVReader
 from typing import Optional, Literal
 from datetime import datetime
-from brooklyn_api_template.input.baseInput import BaseInput, MetaData
+from dataModels.baseInput import BaseInput, MetaData
 
 class CSVFile(BaseModel):
     fileUrl: HttpUrl
@@ -40,6 +41,8 @@ class BubbleInput(BaseInput):
     options: Optional[Options] = None
     metaData: Optional[MetaData] =  None
 
+class UserInput(BaseInput):
+     userInput : str = Field(...,description = "Input from the user in plain english describing the task to be done by copilot app")
 
 
 
