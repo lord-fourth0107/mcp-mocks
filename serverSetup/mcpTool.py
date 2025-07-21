@@ -1,10 +1,13 @@
 from serverSetup.mcpServer import mcp
+from fastmcp import Context
 import os 
 import httpx
 from dataModels.apiInputs import TABSInput, FLANEInput, BubbleInput
 
 @mcp.tool
-async def program_sheet_generation_tool(api_input:TABSInput) -> dict:
+async def program_sheet_generation_tool(api_input:TABSInput,
+                                        ctx : Context
+                                        ) -> dict:
     API_URL = os.getenv("TABS_API_URL")
     ## Put here the json request of tabs
     async with httpx.AsyncClient() as client: 
@@ -12,7 +15,9 @@ async def program_sheet_generation_tool(api_input:TABSInput) -> dict:
         return response.json()
 
 @mcp.tool
-async def floor_plan_generation_tool(api_input:FLANEInput) -> dict:
+async def floor_plan_generation_tool(api_input:FLANEInput,
+                                     ctx : Context
+                                     ) -> dict:
     """ Tool which uses the graph adjacencies and toom list from program sheet output and genertates a floor plan"""
     API_URL = os.getenv("FLANE_API_URL")
     ## Put here the json request of tabs
@@ -22,8 +27,10 @@ async def floor_plan_generation_tool(api_input:FLANEInput) -> dict:
     
 
 @mcp.tool
-async def bubble_diagram_generation_tool(api_input:BubbleInput) -> dict:
+async def bubble_diagram_generation_tool(api_input:BubbleInput,
+                                         ctx : Context) -> dict:
     """ Tool which uses the file location of coordinates to generate the bubble diagram """
+    await ctx.info(f"Received request for user_id: {api_input.userId}")
     API_URL = os.getenv("BUBBLE_API_URL")
     ## Put here the json request of tabs
     async with httpx.AsyncClient() as client: 

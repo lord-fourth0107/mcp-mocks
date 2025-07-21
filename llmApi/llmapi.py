@@ -8,7 +8,6 @@ from ollama import Client
 class LLMClient:
 
     def __init__(self):
-        print("LLM API URL is:",os.getenv("LLM_API_URL"))
         self.remote_llm_client = Client(host=os.getenv("LLM_API_URL"))
     def chat_with_LLM(self,prompt : str, toolList : list[str] = []) -> str:
         print(prompt)
