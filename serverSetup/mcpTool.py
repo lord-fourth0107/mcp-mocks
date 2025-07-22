@@ -11,7 +11,7 @@ async def program_sheet_generation_tool(api_input:TABSInput,
     API_URL = os.getenv("TABS_API_URL")
     ## Put here the json request of tabs
     async with httpx.AsyncClient() as client: 
-        response  = await client.get(API_URL, json = api_input.model_dump())
+        response  = await client.get(API_URL, params = api_input.model_dump())
         return response.json()
 
 @mcp.tool
@@ -22,7 +22,7 @@ async def floor_plan_generation_tool(api_input:FLANEInput,
     API_URL = os.getenv("FLANE_API_URL")
     ## Put here the json request of tabs
     async with httpx.AsyncClient() as client: 
-        response  = await client.get(API_URL, json = api_input.model_dump())
+        response  = await client.get(API_URL, params = api_input.model_dump())
         return response.json()
     
 
@@ -34,7 +34,7 @@ async def bubble_diagram_generation_tool(api_input:BubbleInput,
     API_URL = os.getenv("BUBBLE_API_URL")
     ## Put here the json request of tabs
     async with httpx.AsyncClient() as client: 
-        response  = await client.get(API_URL, json = api_input.model_dump())
+        response  = await client.get(API_URL, params = api_input.model_dump())
         return response.json()
     
 

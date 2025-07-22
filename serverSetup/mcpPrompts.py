@@ -1,5 +1,4 @@
 from serverSetup.mcpServer import mcp
-from fastmcp import Context
 from fastmcp.prompts.prompt import PromptMessage, Prompt,TextContent
 import json
 
@@ -7,7 +6,7 @@ import json
 async def planner_prompt(
     userInput : str,
     tools_schema,
-    ctx : Context
+    userContext : dict,
     ) -> PromptMessage:
     """Prompt which provides plan for a given natural language input."""
     # This now uses the input from your client, so you can see it working.
@@ -19,7 +18,7 @@ async def planner_prompt(
         f"The available tools are: {tools_schema}\n"
         "Your response must be a single JSON object with two keys: 'tool_names' (a list of tool function names to call in order) "
         "and 'tool_args' (a list of dictionaries for each tool's arguments)."
-        f" The tool arguments needs to be filled using the details in context {ctx}\n"
+        f" The tool arguments needs to be filled using the details in context {userContext}\n"
     )    
     return PromptMessage(role = "user", content = TextContent(type = "text", text = content))
 

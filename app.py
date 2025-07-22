@@ -12,13 +12,14 @@ import serverSetup.mcpTool as mcpTool
 import serverSetup.mcpPrompts as mcpPrompts
 from dataModels.apiInputs import UserInput
 from serverSetup.coordinator import Coordinator_Agent
-from fastmcp import Context
 load_dotenv()
 mcp_app = mcp.http_app(path="/mcp")
 # 1. Create the main FastAPI application
+
 app = FastAPI(title="Architectural Assistant Server",lifespan = mcp_app.lifespan)
 remote_llm_host = LLMClient()
 
+app.mount("/mcp-server", mcp_app)
 
 
 @app.get("/")
@@ -29,17 +30,11 @@ async def root(request : UserInput):
                           requestId = request.requestId, 
                           studyId = request.studyId
                           )
-    userContext = Context(
-        user_id = userInput.userId,
-        request_id = userInput.requestId,
-        study_id = userInput.studyId,
-        project_id = userInput.projectId
-    )
-    coordinator_agent =  Coordinator_Agent(request = userInput, remote_llm_host = remote_llm_host, userContext = userContext)
+   
+    coordinator_agent =  Coordinator_Agent(request = userInput, remote_llm_host = remote_llm_host)
     response = await coordinator_agent.coordinate()
     print(response)
 
-app.mount("/mcp-server", mcp_app)
 
 if __name__ == "__main__":
     uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
