@@ -1,6 +1,7 @@
 from serverSetup.mcpServer import mcp
 from fastmcp.prompts.prompt import PromptMessage, Prompt,TextContent
 import json
+from fastmcp import Context
 
 @mcp.prompt
 async def planner_prompt(
@@ -23,7 +24,9 @@ async def planner_prompt(
     return PromptMessage(role = "user", content = TextContent(type = "text", text = content))
 
 @mcp.prompt
-def response_prompt(response):
+def response_prompt(userInput : str,
+                    userContext : dict,
+                    ) -> PromptMessage:
     """ Prompt which is responsible to find the missing details from the user input and check chat with LLM and user """
     content = (
         " You are an expert schema checker and a helpful chat bot for the user designed to chaet with user for missing details in his/her request,"
@@ -34,10 +37,20 @@ def response_prompt(response):
         role = "user", content = TextContent(type = "text", text = content)
     )
 
-@mcp.prompt
-async def user_input_checks():
+@mcp.prompt(name = "input_readiness_prompt")
+async def input_readiness_prompt(userInput:str,
+                                 userContext : dict  ) -> PromptMessage:
     """Prompt for prompting the LLM for checking the inputs required by the api's"""
-    content = " You are an helpful assistant which takes user's input and map them to json schema and check  for all necessary fields for any particular tool input. If you receive a natural language input for generation of floor plan or program sheet, you will need to check if the user input has enough details to build a floor plan" 
+    content = (" You are an helpful assistant which takes user's input and map them to json schema and check  for all necessary fields for any particular tool input. If you receive a natural language input for generation of floor plan or program sheet, you will need to check if the user input has enough details to build a floor plan," 
+    "A good input will contain all necessay details of ho many rooms are in the house, with a detailed categorization of room types. The adjacency of rooms can be optional but if the user does not provide any adjacency of the room sthe user must be prompted to give his/her preferences,"
+    "An example of good userinput for program sheet generation looks like ,"
+    "A bad example of userinput for program sheet generation looks like .. give me a program sheet for a house for 3 people,"
+    "Incase you receive isufficient inputs you will need to chat with the user to give more details or missing mandatory fields, "
+    f"Given the user input '{userInput}', check if this is a good or bad input and in case of bad input start chatting with the user t give moe details, "
+    "if the input is good input return a message saying the input looks good and continue with the rest of the process, "
+    "Your response must be a single JSON object with two keys: 'user_message' (a human readable message of missing fields and how to provide them) and the userId ,"
+    "The response cannot be empty"
+    )
     return PromptMessage(
         role = "user", content = TextContent(type = "text", text = content)
     )

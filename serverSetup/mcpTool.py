@@ -36,7 +36,9 @@ async def bubble_diagram_generation_tool(api_input:BubbleInput,
     async with httpx.AsyncClient() as client: 
         response  = await client.get(API_URL, params = api_input.model_dump())
         return response.json()
-    
+@mcp.tool
+async def check_user_input_readiness(api_input) -> dict: 
+    pass  
 
 @mcp.tool
 async def status_code_checker(api_input) -> dict:

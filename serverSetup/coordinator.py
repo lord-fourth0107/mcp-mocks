@@ -32,13 +32,17 @@ class Coordinator_Agent():
         }
         async  with MCPClient("http://127.0.0.1:8000/mcp-server/mcp") as client:
             try:
+                inputReadinessPromptFunc = await mcp.get_prompt("input_readiness_prompt")
+                inputReadinessPrompt = await inputReadinessPromptFunc.render({"userInput" : self.userInput, "userContext" : self.userContext})
+                print(inputReadinessPrompt[0].content.text)
+                checkResponse = self.remote_llm_host.chat_with_LLM(inputReadinessPrompt[0].content.text)
+                print(checkResponse)
                 prompt_func = await mcp.get_prompt("planner_prompt")
                 available_tools = await mcp.get_tools()
                 tool_schema = await self.get_tools(available_tools)
                 prompt = await prompt_func.render({"userInput" :self.userInput , "tools_schema" : tool_schema, "userContext" : self.userContext})
-                print(f"Prompt is:",prompt[0].content.text)
+                
                 response =self.remote_llm_host.chat_with_LLM(prompt[0].content.text)
-                print(response)
                 plan = json.loads(response['message']['content'])
                 print(plan)
                 toolList = plan["tool_names"]
@@ -50,7 +54,7 @@ class Coordinator_Agent():
                   self.work_history.append(response.json())
                   self.response_history.append(response.json())
                   if(response.json()["status"] == "200"):
-                            continue
+                        continue
                   else:
                             pass
             except Exception as e:
