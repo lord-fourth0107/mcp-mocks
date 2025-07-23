@@ -32,16 +32,17 @@ class Coordinator_Agent():
         }
         async  with MCPClient("http://127.0.0.1:8000/mcp-server/mcp") as client:
             try:
-                inputReadinessPromptFunc = await mcp.get_prompt("input_readiness_prompt")
-                inputReadinessPrompt = await inputReadinessPromptFunc.render({"userInput" : self.userInput, "userContext" : self.userContext})
-                print(inputReadinessPrompt[0].content.text)
-                checkResponse = self.remote_llm_host.chat_with_LLM(inputReadinessPrompt[0].content.text)
+                available_tools = await mcp.get_tools()
+                tool_schema = await self.get_tools(available_tools)
+                #inputReadinessPromptFunc = await client.get_prompt("input_readiness_prompt")
+                inputReadinessPrompt = await client.get_prompt("readiness_and_planner_prompt",{"userInput" : self.userInput, "userContext" : self.userContext, "tools_schema" : tool_schema})
+                print(inputReadinessPrompt.messages[0].content.text)
+                checkResponse = self.remote_llm_host.chat_with_LLM(inputReadinessPrompt.messages[0].content.text)
                 print(checkResponse)
                 prompt_func = await mcp.get_prompt("planner_prompt")
                 available_tools = await mcp.get_tools()
                 tool_schema = await self.get_tools(available_tools)
                 prompt = await prompt_func.render({"userInput" :self.userInput , "tools_schema" : tool_schema, "userContext" : self.userContext})
-                
                 response =self.remote_llm_host.chat_with_LLM(prompt[0].content.text)
                 plan = json.loads(response['message']['content'])
                 print(plan)
@@ -59,15 +60,3 @@ class Coordinator_Agent():
                             pass
             except Exception as e:
                 print(e)
-
-            
-                
-                
-                
-
-                ## Complete this into a working coordinator agent and add status check for each response
-
-
-
-
-    
