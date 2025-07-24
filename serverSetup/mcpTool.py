@@ -8,6 +8,7 @@ from dataModels.apiInputs import TABSInput, FLANEInput, BubbleInput
 async def room_list_and_graph_adjacency_and_program_sheet_generation_tool(api_input:TABSInput,
                                         ctx : Context
                                         ) -> dict:
+    """Tool which takes user inputs and generates room list and graph adjacencies and program sheet"""
     API_URL = os.getenv("TABS_API_URL")
     ## Put here the json request of tabs
     async with httpx.AsyncClient() as client: 
@@ -18,7 +19,7 @@ async def room_list_and_graph_adjacency_and_program_sheet_generation_tool(api_in
 async def floor_plan_generation_tool(api_input:FLANEInput,
                                      ctx : Context
                                      ) -> dict:
-    """ Tool which uses the graph adjacencies and toom list from program sheet output and genertates a floor plan"""
+    """ Tool which uses room list and  the graph adjacencies and toom list from program sheet output and genertates a floor plan"""
     API_URL = os.getenv("FLANE_API_URL")
     ## Put here the json request of tabs
     async with httpx.AsyncClient() as client: 
