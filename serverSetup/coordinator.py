@@ -39,24 +39,23 @@ class Coordinator_Agent():
                 print(inputReadinessPrompt.messages[0].content.text)
                 checkResponse = self.remote_llm_host.chat_with_LLM(inputReadinessPrompt.messages[0].content.text)
                 print(checkResponse)
-                prompt_func = await mcp.get_prompt("planner_prompt")
-                available_tools = await mcp.get_tools()
-                tool_schema = await self.get_tools(available_tools)
-                prompt = await prompt_func.render({"userInput" :self.userInput , "tools_schema" : tool_schema, "userContext" : self.userContext})
-                response =self.remote_llm_host.chat_with_LLM(prompt[0].content.text)
-                plan = json.loads(response['message']['content'])
+                plan = json.loads(checkResponse['message']['content'])
                 print(plan)
                 toolList = plan["tool_names"]
                 tool_args = plan["tool_args"]
                 print(toolList)
                 print(tool_args)
+                toolList.append("endpoint")
                 for tool in toolList:
-                  response = await client.call_tool(tool, tool_args[toolList.index(tool)])
-                  self.work_history.append(response.json())
-                  self.response_history.append(response.json())
-                  if(response.json()["status"] == "200"):
-                        continue
-                  else:
-                            pass
+                  if(tool!="endpoint"):
+                    response = await client.call_tool(tool, tool_args[toolList.index(tool)])
+                    self.work_history.append(response.json())
+                    self.response_history.append(response.json())
+                    if(response.json()["status"] == "200"):
+                            continue
+                    else:
+                        return response.json()
+                else:
+                    return response.json()
             except Exception as e:
                 print(e)

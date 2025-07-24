@@ -34,6 +34,7 @@ async def root(request : UserInput):
     coordinator_agent =  Coordinator_Agent(request = userInput, remote_llm_host = remote_llm_host)
     response = await coordinator_agent.coordinate()
     print(response)
+    return response
 
 
 if __name__ == "__main__":

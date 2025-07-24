@@ -26,26 +26,26 @@ async def master_planner_prompt(
         "--- YOUR ANALYSIS AND RESPONSE ---"
     )    
     return PromptMessage(role="user", content=TextContent(type="text", text=content))
-@mcp.prompt(name = "react_prompt")
-async def react_prompt(
-    userInput : str,
-    tools_schema,
-    userContext : dict,
-    ctx : Context
-    ) -> PromptMessage:
-    """Prompt which provides plan for a given natural language input."""
-    # This now uses the input from your client, so you can see it working.
+# @mcp.prompt(name = "react_prompt")
+# async def react_prompt(
+#     userInput : str,
+#     tools_schema,
+#     userContext : dict,
+#     ctx : Context
+#     ) -> PromptMessage:
+#     """Prompt which provides plan for a given natural language input."""
+#     # This now uses the input from your client, so you can see it working.
 
-    content = (
-        "You are a tool planner assistant. Read the user's request and the available tools, "
-        "then come up with a plan of which tools to call in sequence. "
-        f"The user's request is: '{userInput}'.\n"
-        f"The available tools are: {tools_schema}\n"
-        "Your response must be a single JSON object with two keys: 'tool_names' (a list of tool function names to call in order) "
-        "and 'tool_args' (a list of dictionaries for each tool's arguments)."
-        f" The tool arguments needs to be filled using the details in context {userContext}\n"
-    )    
-    return PromptMessage(role = "user", content = TextContent(type = "text", text = content))
+#     content = (
+#         "You are a tool planner assistant. Read the user's request and the available tools, "
+#         "then come up with a plan of which tools to call in sequence. "
+#         f"The user's request is: '{userInput}'.\n"
+#         f"The available tools are: {tools_schema}\n"
+#         "Your response must be a single JSON object with two keys: 'tool_names' (a list of tool function names to call in order) "
+#         "and 'tool_args' (a list of dictionaries for each tool's arguments)."
+#         f" The tool arguments needs to be filled using the details in context {userContext}\n"
+#     )    
+#     return PromptMessage(role = "user", content = TextContent(type = "text", text = content))
 
 @mcp.prompt
 def response_prompt(userInput : str,
@@ -84,7 +84,7 @@ async def input_readiness_prompt(userInput:str,
         "Here is the details of api's which are available as tools, The room_list_and_graph_adjacency_and_program_sheet_generation_tool tools calls an api which takes the user input of description and generates the rooma list and graph adjacency from it. If a csv files is provided as input then it generates the program sheet," \
         "The floor_plan_generation_tool ues the room list and graph adjacency from the output of previous step and or uses the user input to construct the url for s3 to get the room list and adjacency to generate the floor plan and puts that into s3 ,"
         "The bubble diagram generation tool uses the user input to check if the floor plan exists in the s3 and prepapres a bubble diagram for the floor plan, and also returns the url of the s3 where bubble diagram is stored.\n\n,"
-        "Given this context, now come up with a plan of tools to call in sequence.You cannot give an empty response\n\n"
+        "Given this context, now come up with a plan of tools to call in sequence.You will also need to prepare the input argumets for the tool based on user's input and provide them in response.You cannot give an empty response\n\n. "
         "--- YOUR ANALYSIS AND RESPONSE ---"
     )    
     return PromptMessage(
