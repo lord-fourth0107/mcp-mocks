@@ -2,6 +2,7 @@ from serverSetup.mcpServer import mcp
 from fastmcp.prompts.prompt import PromptMessage, Prompt,TextContent
 import json
 from fastmcp import Context
+from dataModels.apiInputs import UserInput
 
 
 @mcp.prompt
@@ -52,28 +53,23 @@ async def master_planner_prompt(
 
 @mcp.prompt 
 async def get_tool_args_prompt(
+    userInput: UserInput,
     tool_name: str,
     tool_args: dict,
     userContext: dict,
-    history: dict,
-    response: dict,
+    history: list,
+    response: list,
     ctx: Context
 ) -> PromptMessage:
-    content = (
-         "You are an expert at preparing API requests. Your task is to create the precise JSON input for the upcoming tool call.\n"
-        "Analyze the original user goal, the user's context data, and the history of previous tool outputs to find the values for all required parameters in the tool's schema.\n\n"
-        "--- CURRENT TOOL ---\n"
-         f"{tool_name} \n" 
-        "--- CURRENT TOOL ARGUMENTS ---\n"
-        f" {tool_args}.\n\n"
-        "--- USER CONTEXT ---\n"
-        f"{userContext}\n\n"
-        "--- HISTORY OF PREVIOUS STEPS (Use this to find inputs for the current step) ---\n"
-        f"{history}\n\n"
-        "--- RESPONSE FROM PREVIOUS STEPS (Use this to find inputs for the current step) ---\n"
-        f"{response}\n\n"
-        "--- YOUR RESPONSE ---\n"
-        "Your response MUST be a single, valid JSON object that exactly matches the tool's input schema."
+    content =(
+       f""" 
+A user with ID '{userInput.userId}' is working on project '{userInput.projectId}'. "
+            f"Their overall goal is to return a a JSON object which has keys mentioned in tool structure  mentioned below and values as mentioned in the user description'.\n\n"
+            f"The next step in their plan is to use the tool named '{tool_name}'. "
+            f"This tool requires a specific JSON input with the following structure:\n"
+            f"{json.dumps(tool_args, indent=2)}\n\n
+            As an expert who analyses the natural language and fills the argument in a schema your job is to use the description and give an output in the schema mentioned above"""
+    
     )
     return PromptMessage(
         role="user", content=TextContent(type="text", text=content)
@@ -114,6 +110,31 @@ def response_prompt(userInput : str,
     return PromptMessage(
         role = "user", content = TextContent(type = "text", text = content)
     )
+@mcp.prompt
+async def react_agent_prompt(
+    goal: str,
+    tools_schema: str,
+    scratchpad: str
+) -> PromptMessage:
+    """Instructs the LLM to follow the ReAct (Reason-Act) pattern."""
+    content = (
+        "You are a diligent AI agent. Your goal is to complete the user's request by executing a sequence of tools. "
+        "Operate in a loop of Thought, Action, Observation.\n\n"
+        "1. **Thought**: Reason about the user's goal and the progress so far (the scratchpad). Formulate a plan for your immediate next step.\n"
+        "2. **Action**: Based on your thought, choose a single tool to execute. Your action must be a JSON object with 'tool_name' and 'tool_args'.\n"
+        "3. **Observation**: After you act, you will be given the result of the tool's execution.\n\n"
+        "Repeat this cycle until the goal is achieved. When you have the final answer, your action MUST be to call the 'finish' tool with a single argument 'answer'.\n\n"
+        "--- TOOLS ---\n"
+        f"{tools_schema}\n\n"
+        "--- TASK ---\n"
+        f"Goal: {goal}\n\n"
+        f"Here is the history of your work so far (the scratchpad):\n{scratchpad}\n\n"
+        "--- YOUR RESPONSE ---\n"
+        "Your response MUST be a single JSON object containing your 'thought' and your next 'action'. Example: "
+        '{"thought": "I need to do X to progress.", "action": {"tool_name": "tool_to_call", "tool_args": {"arg": "value"}}}'
+    )    
+    return PromptMessage(role="user", content=TextContent(type="text", text=content))
+
 
 @mcp.prompt(name = "readiness_and_planner_prompt")
 async def input_readiness_prompt(userInput:str,
@@ -159,4 +180,22 @@ async def input_readiness_prompt(userInput:str,
     return PromptMessage(
         role = "user", content = TextContent(type = "text", text = content)
     )
-    
+
+@mcp.prompt
+async def fill_in_the_arguments_prompt(
+    userInput: UserInput,
+    toolName: str,
+    toolArgs: dict,
+    userContext: dict,
+    history: list,
+    response: list,
+    ctx: Context,
+)-> PromptMessage: 
+    content = (
+        f"""An user with userID {userInput.userId} working on project with {userInput.projectId} and a study with {userInput.studyId} has made a request with requestID {userInput.requestId}. 
+         The user has an input descriipition {userInput.userInput}. As an intelligent fill in the blank expert your job is to create a JSON input with fields from the pydantic class {toolArgs} using the above narrative . if you fnd fields which are required but not present in the narrative you can just return a random value in that field 
+         Return a single JSON object with the values filled in the fields"""
+    )
+    return PromptMessage(
+        role = "user", content = TextContent(type = "text", text = content)
+    )

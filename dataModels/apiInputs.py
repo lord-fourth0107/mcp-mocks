@@ -2,8 +2,7 @@ from pydantic import BaseModel, Field, UUID4, HttpUrl, model_validator
 from pydantic_csv import BasemodelCSVReader
 from typing import Optional, Literal
 from datetime import datetime
-from dataModels.baseInput import BaseInput, MetaData
-
+from dataModels.baseInput import UserInput, MetaData
 class CSVFile(BaseModel):
     fileUrl: HttpUrl
 
@@ -24,25 +23,24 @@ class JobOptions(Options):
     unit: Literal["m", "ft"] = Field("m", description="Unit of measurement for the output file.")
     includeSchedule: bool = Field(False, description="Whether to include the schedule in the output file.")
 
-
-class TABSInput(BaseInput):
+class TABSInput(UserInput):
     action: Literal["create", "update"]
     prompt: str
-    csvFile: Optional[CSVFile]
-    options: Optional[Options]
-    metadata: Optional[MetaData]
+    csvFile: Optional[CSVFile] = None
+    options: Optional[Options] = None 
+    metadata: Optional[MetaData] = None
 
 
 
-class FLANEInput(BaseInput):
+class FLANEInput(UserInput):
     options: Optional[JobOptions] = Field(None, description="Options for the job")
 
-class BubbleInput(BaseInput):
+class BubbleInput(UserInput):
     options: Optional[Options] = None
     metaData: Optional[MetaData] =  None
 
-class UserInput(BaseInput):
-     userInput : str = Field(...,description = "Input from the user in plain english describing the task to be done by copilot app")
+# class UserInput(BaseInput):
+#      userInput : str = Field(...,description = "Input from the user in plain english describing the task to be done by copilot app")
 
 
 

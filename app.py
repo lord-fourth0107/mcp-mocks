@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 import serverSetup.mcpTool as mcpTool
 import serverSetup.mcpPrompts as mcpPrompts
-from dataModels.apiInputs import UserInput
+from dataModels.baseInput import UserInput
 from serverSetup.coordinator import Coordinator_Agent
 load_dotenv()
 mcp_app = mcp.http_app(path="/mcp")
@@ -25,7 +25,7 @@ app.mount("/mcp-server", mcp_app)
 @app.get("/")
 async def root(request : UserInput):
     userInput = UserInput( userId = request.userId,
-                          userInput = request.userInput, 
+                          userQuery = request.userQuery, 
                           projectId = request.projectId, 
                           requestId = request.requestId, 
                           studyId = request.studyId
