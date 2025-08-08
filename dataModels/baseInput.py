@@ -23,6 +23,5 @@ BaseInput is the input format for all API requests.
 class UserInput(BaseModel):
     projectId: str = Field(...)
     requestId: UUID4 = Field(...)
-    studyId : str = Field(...)
     userId : str = Field(...)
     userQuery : str = Field(None)

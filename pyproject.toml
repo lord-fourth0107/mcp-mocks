@@ -15,6 +15,9 @@ loguru = "^0.7.3"
 ollama = "^0.5.1"
 python-dotenv = "^1.1.1"
 pydantic-csv = "^0.1.0"
+google-generativeai = "^0.8.5"
+brooklyn-api-gcp-commons = {git = "https://github.com/dwellci/brooklyn-api-gcp-commons.git", rev = "v1.0.0"}
+google-genai = "^1.29.0"
 
 [build-system]
 requires = ["poetry-core"]

@@ -4,11 +4,11 @@ from typing import Optional, Literal
 from datetime import datetime
 from dataModels.baseInput import UserInput, MetaData
 class CSVFile(BaseModel):
-    fileUrl: HttpUrl
+    fileUrl: HttpUrl = Field(None, description="URL of the CSV file")
 
 class Options(BaseModel):
     units: Optional[Literal["sqm", "sqft"]] = Field(default="sqm")
-    language: Optional[str]
+    language: Optional[str] = Field(None)
     strictMode: Optional[bool] = Field(default=False)
 
 class Layers(BaseModel):

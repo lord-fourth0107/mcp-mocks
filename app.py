@@ -28,12 +28,10 @@ async def root(request : UserInput):
                           userQuery = request.userQuery, 
                           projectId = request.projectId, 
                           requestId = request.requestId, 
-                          studyId = request.studyId
                           )
    
     coordinator_agent =  Coordinator_Agent(request = userInput, remote_llm_host = remote_llm_host)
     response = await coordinator_agent.coordinate()
-    print(response)
     return response
 
 
